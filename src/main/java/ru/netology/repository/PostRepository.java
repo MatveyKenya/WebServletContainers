@@ -4,10 +4,11 @@ import ru.netology.model.Post;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 // my realisation
 public class PostRepository {
-    private static volatile long countPosts = 0;
+    private static final AtomicLong countPosts = new AtomicLong(0);
     private static final Map<Long, Post> posts = new ConcurrentHashMap<>();
 
     public List<Post> all() {
@@ -21,9 +22,9 @@ public class PostRepository {
     public synchronized Post save(Post post) {
         long id = post.getId();
         if (id == 0){ // новая запись
-            countPosts++;
-            post.setId(countPosts);
-            posts.put(countPosts, post);
+            long newId = countPosts.incrementAndGet();
+            post.setId(newId);
+            posts.put(newId, post);
         } else { // обновление существующей записи
             if (posts.containsKey(id)) {
                 posts.put(id, post);
