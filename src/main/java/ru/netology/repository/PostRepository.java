@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 // my realisation
 public class PostRepository {
-    private static final AtomicLong countPosts = new AtomicLong(0);
-    private static final Map<Long, Post> posts = new ConcurrentHashMap<>();
+    private static long countPosts = 0;
+    private static final Map<Long, Post> posts = new HashMap<>();
 
     public List<Post> all() {
         return posts.values().stream().toList();
@@ -22,9 +22,8 @@ public class PostRepository {
     public synchronized Post save(Post post) {
         long id = post.getId();
         if (id == 0){ // новая запись
-            long newId = countPosts.incrementAndGet();
-            post.setId(newId);
-            posts.put(newId, post);
+            post.setId(countPosts++);
+            posts.put(countPosts, post);
         } else { // обновление существующей записи
             if (posts.containsKey(id)) {
                 posts.put(id, post);
